@@ -66,17 +66,25 @@ server <- function(input, output) {
       }
     }
     
-    # Add labels for row sums
+    # Add labels for consecutive filled squares in rows
     for (i in 1:dim[1]) {
-      text(-0.5, dim[1] - i + 0.5, row_sums[i], pos = 4)
+      consecutive_counts <- consecutiveCounts(grid[i, ])
+      text(-0.5, dim[1] - i + 0.5, paste(consecutive_counts, collapse = ' '), pos = 4)
     }
     
-    # Add labels for column sums
+    # Add labels for consecutive filled squares in columns
     for (j in 1:dim[2]) {
-      text(j - 0.5, dim[1] + 0.5, col_sums[j], pos = 3)
+      consecutive_counts <- consecutiveCounts(grid[, j])
+      text(j - 0.5, dim[1] + 0.5, paste(consecutive_counts, collapse = ' '), pos = 3)
     }
   })
-}
 
+  # Function to count consecutive filled squares
+  consecutiveCounts <- function(vector) {
+    counts <- rle(vector)$lengths
+    counts <- counts[counts > 1]  # Keep only consecutive counts greater than 1
+    return(counts)
+  }
+}
 # Run the application 
 shinyApp(ui = ui, server = server)
