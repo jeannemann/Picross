@@ -78,13 +78,14 @@ server <- function(input, output) {
       text(j - 0.5, dim[1] + 0.5, paste(consecutive_counts, collapse = ' '), pos = 3)
     }
   })
-
+  
   # Function to count consecutive filled squares
   consecutiveCounts <- function(vector) {
-    counts <- rle(vector)$lengths
-    counts <- counts[counts > 1]  # Keep only consecutive counts greater than 1
+    runs <- rle(vector == 1)
+    counts <- runs$lengths[runs$values == TRUE]
     return(counts)
   }
 }
+
 # Run the application 
 shinyApp(ui = ui, server = server)
