@@ -9,8 +9,8 @@ ui <- fluidPage(
   # Use fixed layout
   tags$head(tags$style(HTML("
         body, .container-fluid {
-            max-width: 800px; /* adjust this value to your desired maximum width */
-            width: 800px !important;
+            max-width: 950px; /* adjust this value to your desired maximum width */
+            width: 950px !important;
         }
     "))),
   
