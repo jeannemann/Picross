@@ -39,6 +39,13 @@ ui <- fluidPage(
 # Define server logic required to draw the grid
 server <- function(input, output) {
   
+  # Function to count consecutive filled squares
+  consecutiveCounts <- function(vector) {
+    runs <- rle(vector == 1)
+    counts <- runs$lengths[runs$values == TRUE]
+    return(counts)
+  }
+  
   output$gridPlot <- renderPlot({
     # Extract grid dimensions from input$grid_size
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
@@ -75,16 +82,9 @@ server <- function(input, output) {
     # Add labels for consecutive filled squares in columns
     for (j in 1:dim[2]) {
       consecutive_counts <- consecutiveCounts(grid[, j])
-      text(j - 0.5, dim[1] + 0.5, paste(consecutive_counts, collapse = ' '), pos = 3)
+      text(j - 0.5, dim[1] + 0.5, paste(consecutive_counts, collapse = '\n'), pos = 3)
     }
   })
-  
-  # Function to count consecutive filled squares
-  consecutiveCounts <- function(vector) {
-    runs <- rle(vector == 1)
-    counts <- runs$lengths[runs$values == TRUE]
-    return(counts)
-  }
 }
 
 # Run the application 
