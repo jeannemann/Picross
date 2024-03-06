@@ -1,3 +1,4 @@
+# Je tiens un truc mais c'est pas encore ça
 library(shiny)
 
 ui <- fluidPage(
@@ -24,6 +25,10 @@ ui <- fluidPage(
             height: 50px;
             margin: 1px;
           }
+          .matrix-container {
+            max-height: 150vh; /* You can adjust the max-height as needed */
+            overflow-y: auto;
+          }
         "))
       )
     )
@@ -45,7 +50,10 @@ server <- function(input, output) {
       fluidRow(do.call(tagList, matrix_buttons[i, ]))
     })
     
-    tagList(rows)
+    tagList(
+      tags$div(id = "matrix-container", class = "matrix-container",
+               do.call(tagList, rows))
+    )
   })
 }
 
