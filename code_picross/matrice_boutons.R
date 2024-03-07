@@ -1,6 +1,8 @@
 library(shiny)
+library(shinyjs)
 
 ui <- fluidPage(
+  shinyjs::useShinyjs(),  # Utiliser l'extension ShinyJS
   titlePanel("Grille de PICROSS"),
   sidebarLayout(
     sidebarPanel(
@@ -17,54 +19,76 @@ ui <- fluidPage(
     ),
     mainPanel(
       uiOutput("buttonMatrix"),
-      tags$head(
-        tags$style(HTML("
-        .square-button {
-          width: 30px;
-          height: 30px;
-        }
-        
-        .matrix-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
-          gap: 1px;
-          max-width: 100%; /* Ne pas dépasser la largeur du conteneur parent */
-          overflow-x: auto; /* Ajoutez une barre de défilement horizontale si nécessaire */
-          max-height: 150vh; /* Ajustez la hauteur maximale selon vos besoins */
-          overflow-y: auto;
-        }
-        "))
-      )
+      tags$style(HTML("
+          /* Ajoutez les styles CSS ici */
+          .square-button {
+            width: 30px;
+            height: 30px;
+            margin: 1px;
+            background-color: white;
+          }
+
+          .matrix-container {
+            display: grid;
+            gap: 1px;
+            max-width: 100%;
+            overflow-x: auto;
+            max-height: 150vh;
+            overflow-y: auto;
+          }
+      ")),
+      tags$script(HTML('
+       $(document).on("shiny:connected", function() {
+        shinyjs.onClickButton = function(index) {
+          Shiny.setInputValue("clickedButton", index);
+        };
+      });
+
+      '))
     )
   )
 )
 
 server <- function(input, output) {
-  output$buttonMatrix <- renderUI({
+  observeEvent(input$grid_size, {
+    # Mettre à jour la taille de la grille lorsqu'elle change
+    updateMatrix()
+  })
+  
+  observeEvent(input$clickedButton, {
+    # Mettre à jour la classe "clicked" des boutons côté serveur
+    btn_id <- paste0("button", input$clickedButton)
+    shinyjs::runjs(sprintf('$(".square-button").removeClass("clicked"); $("#%s").click();', btn_id))
+  })
+  
+  updateMatrix <- function() {
     grid_size <- as.numeric(unlist(strsplit(input$grid_size, "x")))
     num_buttons <- grid_size[1] * grid_size[2]
     
     button_list <- lapply(1:num_buttons, function(i) {
-      actionButton(inputId = paste0("button", i), "", class = "btn btn-default square-button")
+      actionButton(
+        inputId = paste0("button", i),
+        "",
+        class = "btn btn-default square-button"
+      )
     })
     
     cols <- grid_size[2]  # Nombre de colonnes dans la grille
-    col_width <- "30px"  # Ajustez la largeur des colonnes
     
-    tagList(
-      tags$style(HTML(sprintf("
-        .matrix-container { 
-          grid-template-columns: repeat(%d, %s); 
-          gap: 1px; 
-          max-width: 100%%; 
-          overflow-x: auto; 
-          max-height: 150vh; 
-          overflow-y: auto;
-        }
-      ", cols, col_width))),
-      div(id = "matrix-container", class = "matrix-container", button_list)
-    )
-  })
+    output$buttonMatrix <- renderUI({
+      tagList(
+        tags$style(HTML(sprintf("
+          .matrix-container { 
+            display: grid;
+            grid-template-columns: repeat(%d, 30px); 
+            gap: 1px; 
+            max-width: 100%%; 
+          }
+        ", cols))),
+        div(id = "matrix-container", class = "matrix-container", button_list)
+      )
+    })
+  }
 }
 
 shinyApp(ui, server)
