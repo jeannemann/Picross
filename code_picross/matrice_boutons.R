@@ -53,6 +53,9 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  # Initialiser une matrice de statuts pour chaque bouton
+  button_status <- reactiveVal(matrix(0, nrow = 1, ncol = 1))
+  
   observeEvent(input$grid_size, {
     # Mettre à jour la taille de la grille lorsqu'elle change
     updateMatrix()
@@ -62,11 +65,20 @@ server <- function(input, output) {
     # Mettre à jour la classe "clicked" des boutons côté serveur
     btn_id <- paste0("button", input$clickedButton)
     shinyjs::runjs(sprintf('$(".square-button").removeClass("clicked"); $("#%s").click();', btn_id))
+    
+    # Mettre à jour le statut du bouton dans la matrice
+    button_status(matrix(1, nrow = 1, ncol = 1, dimnames = list(NULL, btn_id)))
+    
+    # Afficher le statut dans la console JavaScript du navigateur
+    shinyjs::runjs(sprintf('console.log("Matrice de statuts mise à jour : %s");', as.character(button_status())))
   })
   
   updateMatrix <- function() {
     grid_size <- as.numeric(unlist(strsplit(input$grid_size, "x")))
     num_buttons <- grid_size[1] * grid_size[2]
+    
+    # Initialiser la matrice de statuts avec des zéros
+    button_status(matrix(0, nrow = 1, ncol = num_buttons))
     
     button_list <- lapply(1:num_buttons, function(i) {
       actionButton(
