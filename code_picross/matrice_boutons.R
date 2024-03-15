@@ -36,6 +36,9 @@ ui <- fluidPage(
             max-height: 150vh;
             overflow-y: auto;
           }
+          button:active{
+            background-color:#e66c6c;  //Le bouton changera de couleur au clic
+          }
       ")),
       tags$script(HTML('
        $(document).on("shiny:connected", function() {
