@@ -26,10 +26,13 @@ if (interactive()) {
         checkboxInput(inputId = paste0("box", i), label = NULL)
       })
       
-      matrix_boxes <- matrix(boxes, nrow = matrix_size[2])
+      matrix_boxes <- matrix(boxes, nrow = matrix_size[1], ncol = matrix_size[2])
       
       rows <- lapply(1:matrix_size[1], function(i) {
         fluidRow(do.call(tagList, matrix_boxes[i, ]))
+      })
+      cols <- lapply(1:matrix_size[2], function(j) {
+        fluidRow(do.call(tagList, matrix_boxes[ ,j]))
       })
       
       tagList(rows)
