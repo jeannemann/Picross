@@ -10,7 +10,7 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       selectInput("grid_size",
-                  "Grid Size:",
+                  "Taille de la grille:",
                   choices = c("5x5" = "5x5",
                               "10x10" = "10x10",
                               "15x15" = "15x15",
@@ -53,7 +53,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   # Initialiser une matrice de statuts pour chaque bouton
-  button_status <- reactiveVal(matrix(0, nrow = 1, ncol = 1))
+  button_status <- reactiveVal(sample(c(0,1), 1, replace = TRUE))
   
   observeEvent(input$grid_size, {
     # Mettre à jour la taille de la grille lorsqu'elle change
@@ -76,15 +76,9 @@ server <- function(input, output) {
     grid_size <- as.numeric(unlist(strsplit(input$grid_size, "x")))
     num_buttons <- grid_size[1] * grid_size[2]
     
-    # Définit une matrice de 0 et de 1
-    
-    creatematrix <- function(i, j){
-      matrix(sample(c(0, 1), i*j, replace = TRUE, prob = c(0.5,0.5)), nrow = i)
-    }
-    creatematrix(grid_size[1],grid_size[2])
     
     # Initialiser la matrice de statuts avec des zéros
-    button_status(matrix(0, nrow = 1, ncol = num_buttons))
+    button_status(matrix(sample(c(0,1), 1, replace = TRUE), nrow = 1, ncol = num_buttons))
     
     button_list <- lapply(1:num_buttons, function(i) {
       actionButton(
