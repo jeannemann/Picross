@@ -1,41 +1,58 @@
-if (interactive()) {
-  
-  ui <- fluidPage(
-    titlePanel("Matrice de Cases Cliquables"),
-    sidebarLayout(
-      sidebarPanel(
-        selectInput("matrix_size",
-                    "Matrix Size:",
-                    choices = c("3x3" = "3x3",
-                                "4x4" = "4x4",
-                                "5x5" = "5x5"),
-                    selected = "3x3")
-      ),
-      mainPanel(
-        uiOutput("clickableMatrix")
-      )
+library(shiny)
+
+
+ui <- fluidPage(
+  shinyjs::useShinyjs(),  # Utiliser l'extension ShinyJS
+  titlePanel("Grille de PICROSS"),
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("m_size",
+                  "Grid Size:",
+                  choices = c("5x5" = "5x5",
+                              "10x10" = "10x10",
+                              "15x15" = "15x15",
+                              "20x20" = "20x20"),
+                  selected = "5x5")
+    ),
+    mainPanel(
+      uiOutput("buttonMatrix"),
+      tags$style(HTML("
+          /* Ajoutez les styles CSS ici */
+          .square-button {
+            width: 30px;
+            height: 30px;
+            margin: 1px;
+            background-color: white;
+          }
+
+          .matrix-container {
+            display: grid;
+            gap: 1px;
+            max-width: 100%;
+            overflow-x: auto;
+            max-height: 150vh;
+            overflow-y: auto;
+          }
+      ")),
+      tags$script(HTML('
+       $(document).on("shiny:connected", function() {
+        shinyjs.onClickButton = function(index) {
+          Shiny.setInputValue("clickedButton", index);
+        };
+      });
+
+      '))
     )
   )
-  
-  server <- function(input, output) {
-    output$clickableMatrix <- renderUI({
-      matrix_size <- as.numeric(unlist(strsplit(input$matrix_size, "x")))
-      num_boxes <- matrix_size[1] * matrix_size[2]
-      
-      boxes <- lapply(1:num_boxes, function(i) {
-        checkboxInput(inputId = paste0("box", i), label = NULL)
-      })
-      
-      matrix_boxes <- matrix(boxes, nrow = matrix_size[2])
-      
-      rows <- lapply(1:matrix_size[1], function(i) {
-        fluidRow(do.call(tagList, matrix_boxes[i, ]))
-      })
-      
-      tagList(rows)
-    })
-  }
-  
-  shinyApp(ui, server)
-}
+)
 
+
+
+# Définit une fonction pour créer une matrice de 0 et de 1
+
+creatematrix <- function(i, j){
+  matrix(sample(c(0, 1), i*j, replace = TRUE, prob = c(0.8,0.2)), nrow = i, ncol = j)
+}
+creatematrix(m_size[1],m_size[2])
+
+shinyApp(ui,server)

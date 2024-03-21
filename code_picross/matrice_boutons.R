@@ -1,19 +1,19 @@
 library(shiny)
 library(shinyjs)
 
+
+
+
 ui <- fluidPage(
   shinyjs::useShinyjs(),  # Utiliser l'extension ShinyJS
   titlePanel("Grille de PICROSS"),
   sidebarLayout(
     sidebarPanel(
       selectInput("grid_size",
-                  "Grid Size:",
+                  "Taille de la grille:",
                   choices = c("5x5" = "5x5",
-                              "5x10" = "5x10",
                               "10x10" = "10x10",
-                              "10x15" = "10x15",
                               "15x15" = "15x15",
-                              "15x20" = "15x20",
                               "20x20" = "20x20"),
                   selected = "5x5")
     ),
@@ -52,9 +52,11 @@ ui <- fluidPage(
   )
 )
 
+
+
 server <- function(input, output) {
   # Initialiser une matrice de statuts pour chaque bouton
-  button_status <- reactiveVal(matrix(0, nrow = 1, ncol = 1))
+  button_status <- reactiveVal(sample(c(0,1), 1, replace = TRUE))
   
   observeEvent(input$grid_size, {
     # Mettre à jour la taille de la grille lorsqu'elle change
@@ -77,8 +79,9 @@ server <- function(input, output) {
     grid_size <- as.numeric(unlist(strsplit(input$grid_size, "x")))
     num_buttons <- grid_size[1] * grid_size[2]
     
+    
     # Initialiser la matrice de statuts avec des zéros
-    button_status(matrix(0, nrow = 1, ncol = num_buttons))
+    button_status(matrix(sample(c(0,1), 1, replace = TRUE), nrow = 1, ncol = num_buttons))
     
     button_list <- lapply(1:num_buttons, function(i) {
       actionButton(
