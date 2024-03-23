@@ -36,9 +36,6 @@ ui <- fluidPage(
             max-height: 150vh;
             overflow-y: auto;
           }
-          button:active{
-            background-color:#e66c6c;  //Le bouton changera de couleur au clic
-          }
       ")),
       tags$script(HTML('
        $(document).on("shiny:connected", function() {
@@ -56,7 +53,7 @@ ui <- fluidPage(
 
 server <- function(input, output) {
   # Initialiser une matrice de statuts pour chaque bouton
-  button_status <- reactiveVal(sample(c(0,1), 1, replace = TRUE))
+  button_status <- reactiveVal(matrix(sample(c(0,1), 1, replace = TRUE)))
   
   observeEvent(input$grid_size, {
     # Mettre à jour la taille de la grille lorsqu'elle change
