@@ -1,10 +1,5 @@
 library(shiny)
 
-# Fonction pour générer une grille de picross aléatoire
-grille_aleatoire <- function(taille) {
-  matrix(sample(c(0, 1), taille * taille, replace = TRUE, prob = c(0.6, 0.4)), nrow = taille)
-}
-
 # Define UI for application that draws a grid of black and white squares
 ui <- fluidPage(
   
@@ -44,7 +39,11 @@ ui <- fluidPage(
     # Show the grid of black and white squares
     mainPanel(
       uiOutput("grid"),
-      style = "width: 35%; height: 35%;overflow: auto;"
+      style = "width: 40%; 
+               height: 100%;
+               margin: 1px;
+               overflow:
+               auto;"
     )
   )
 )
@@ -59,8 +58,8 @@ server <- function(input, output, session) {
     return(counts)
   }
   
-  # Function to generate random Picross grid
-  generate_picross_grid <- function(dim) {
+  # Fonction pour générer une grille de picross aléatoire
+  grille_aleatoire <- function(dim) {
     grid <- matrix(sample(c(0, 1), dim[1] * dim[2], replace = TRUE, prob = c(0.6, 0.4)), nrow = dim[1], ncol = dim[2])
     return(grid)
   }
@@ -70,7 +69,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$grid_size, {
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
-    grid(generate_picross_grid(dim))
+    grid(grille_aleatoire(dim))
   })
   
   observe({
