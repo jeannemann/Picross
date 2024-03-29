@@ -1,9 +1,8 @@
 library(shiny)
 
-# Define UI for application that draws a grid of black and white squares
 ui <- fluidPage(
   
-  # Application title
+  # Titre de l'application
   titlePanel("Grille de PICROSS"),
   
   # Use fixed layout
@@ -11,11 +10,11 @@ ui <- fluidPage(
     '
         $(document).on("click", ".grid-cell", function() {
           var cell = $(this);
-          if (!cell.hasClass("black")) {
-            cell.addClass("black");
+          if (!cell.hasClass("darkblue")) {
+            cell.addClass("darkblue");
             cell.css("background-color", "#333");
           } else {
-            cell.removeClass("black");
+            cell.removeClass("darkblue");
             cell.css("background-color", "white");
           }
         });
@@ -41,17 +40,17 @@ ui <- fluidPage(
       uiOutput("grid"),
       style = "width: 40%; 
                height: 100%;
-               margin: 1px;
+               margin: 10px;
                overflow:
                auto;"
     )
   )
 )
 
-# Define server logic required to draw the grid
+# Définit un server logique pour générer la grille
 server <- function(input, output, session) {
   
-  # Function to count consecutive filled squares
+  # Fonction pour compter les cases noires dans le Picross
   consecutiveCounts <- function(vector) {
     runs <- rle(vector == 1)
     counts <- runs$lengths[runs$values == TRUE]
@@ -64,7 +63,7 @@ server <- function(input, output, session) {
     return(grid)
   }
   
-  # Initialize grid
+  # Crée la grille
   grid <- reactiveVal(NULL)
   
   observeEvent(input$grid_size, {
@@ -73,14 +72,26 @@ server <- function(input, output, session) {
   })
   
   observe({
-    # Update grid based on clicks
+    # Met à jour la grille grâce au clic
     if (!is.null(grid())) {
       for (i in 1:nrow(grid())) {
         for (j in 1:ncol(grid())) {
           id <- paste0("cell_", i, "_", j)
           observeEvent(input[[id]], {
-            new_grid <- grid()
-            new_grid[i, j] <- 1 - new_grid[i, j]  # Toggle between 0 and 1
+            if (grid()[i, j]  == 0)
+            new_grid[i, j] <- 1 
+            else new_grid[i, j] <- 0  
+            style <- if (cell_value == 1) "background-color: darkblue;" else "background-color: white;"
+            actionButton(
+              id, 
+              "", 
+              style = paste0(
+                "width: 100%;",
+                "height: 100%;",
+                style
+              ),
+              class = "grid-cell"
+            )
             grid(new_grid)
           })
         }
@@ -103,7 +114,7 @@ server <- function(input, output, session) {
           lapply(1:dim[2], function(j) {
             id <- paste0("cell_", i, "_", j)
             cell_value <- grid()[i, j]
-            style <- if (cell_value == 1) "background-color: black;" else "background-color: white;"
+            style <- if (cell_value == 1) "background-color: darkblue;" else "background-color: white;"
             actionButton(
               id, 
               "", 
@@ -122,4 +133,7 @@ server <- function(input, output, session) {
 }
 
 # Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp( ui, server)
+
+
+ 
