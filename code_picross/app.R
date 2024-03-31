@@ -10,37 +10,51 @@ ui <- fluidPage(
     '
         $(document).on("click", ".grid-cell", function() {
           var cell = $(this);
-          if (!cell.hasClass("darkblue")) {
-            cell.addClass("darkblue");
-            cell.css("background-color", "darkblue");
-          } else {
+          if (cell.hasClass("darkblue")) {
             cell.removeClass("darkblue");
             cell.css("background-color", "white");
+          } else {
+            cell.addClass("darkblue");
+            cell.css("background-color", "darkblue");
           }
         });
         '))),
   
-  # Sidebar with a select input for grid size
-  sidebarLayout(
-    sidebarPanel(
-      selectInput("grid_size",
-                  "Grid Size:",
-                  choices = c("5x5", 
-                              "5x10", 
-                              "10x10", 
-                              "10x15", 
-                              "15x15", 
-                              "15x20", 
-                              "20x20"),
-                  selected = "10x10"),
-      style = "width: 200px;"
+  # Utilisation de fluidRow pour disposer les éléments côte à côte
+  fluidRow(
+    # Panneau latéral avec une entrée de sélection pour la taille de la grille
+    column(
+      width = 3,
+      sidebarPanel(
+        selectInput("grid_size",
+                    "Grid Size:",
+                    choices = c("5x5", 
+                                "5x10", 
+                                "10x10", 
+                                "10x15", 
+                                "15x15", 
+                                "15x20", 
+                                "20x20"),
+                    selected = "10x10"),
+        style = "width: 200px;"
+      )
     ),
     
-    # Show the grid of black and white squares
-    mainPanel(
-      uiOutput("grid"),
-      style = "margin: 10px; 
-               overflow: auto;"
+    # Affichage des indices au-dessus de la grille
+    column(
+      width = 9,
+      fluidRow(
+        mainPanel(
+          uiOutput("indices"),
+          style = "margin-top: 20px;"  # Ajout d'une marge en haut pour les indices
+        )
+      ),
+      fluidRow(
+        mainPanel(
+          uiOutput("grid"),
+          style = "margin-top: 20px;"  # Ajout d'une marge en haut pour la grille principale
+        )
+      )
     )
   )
 )
@@ -63,6 +77,7 @@ server <- function(input, output, session) {
   
   # Create grid
   grid <- reactiveVal(NULL)
+  counts <- reactiveVal(NULL)  # Stocker les indices pour chaque colonne
   
   observeEvent(input$grid_size, {
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
@@ -70,33 +85,39 @@ server <- function(input, output, session) {
   })
   
   observe({
-    # Update grid on click
+    # Calculer les indices pour chaque colonne de la grille
     if (!is.null(grid())) {
-      for (i in 1:nrow(grid())) {
-        for (j in 1:ncol(grid())) {
-          id <- paste0("cell_", i, "_", j)
-          observeEvent(input[[id]], {
-            if (grid()[i, j]  == 0)
-              new_grid[i, j] <- 1 
-            else new_grid[i, j] <- 0  
-            style <- if (cell_value == 1) "background-color: darkblue;" else "background-color: white;"
-            actionButton(
-              id, 
-              "", 
-              style = paste0(
-                "width: 30px;",  # Définir une largeur fixe en pixels
-                "height: 30px;",  # Définir une hauteur fixe en pixels
-                style
-              ),
-              class = "grid-cell"
-            )
-            grid(new_grid)
-          })
-        }
-      }
+      cols <- ncol(grid())
+      counts_list <- lapply(1:cols, function(j) {
+        consecutiveCounts(grid()[, j])
+      })
+      counts(counts_list)
     }
   })
   
+  # Afficher les indices
+  output$indices <- renderUI({
+    if (!is.null(counts())) {
+      cols <- length(counts())
+      div(
+        style = paste0(
+          "display: grid;",
+          "grid-template-columns: repeat(", cols, ", 30px);",  # Utiliser une largeur fixe en pixels pour chaque colonne d'indices
+          "grid-gap: 1px;"
+        ),
+        lapply(1:cols, function(j) {
+          lapply(counts()[[j]], function(count) {
+            div(
+              count,
+              style = "text-align: center;"
+            )
+          })
+        })
+      )
+    }
+  })
+  
+  # Afficher la grille
   output$grid <- renderUI({
     if (!is.null(grid())) {
       dim <- dim(grid())
@@ -104,8 +125,8 @@ server <- function(input, output, session) {
       div(
         style = paste0(
           "display: grid;",
-          "grid-template-columns: repeat(", dim[2], ", 30px);",  # Utiliser une largeur fixe en pixels
-          "grid-template-rows: repeat(", dim[1], ", 30px);",     # Utiliser une hauteur fixe en pixels
+          "grid-template-columns: repeat(", dim[2], ", 30px);",  # Utiliser une largeur fixe en pixels pour chaque colonne de la grille
+          "grid-template-rows: repeat(", dim[1], ", 30px);",     # Utiliser une hauteur fixe en pixels pour chaque ligne de la grille
           "grid-gap: 1px;"
         ),
         lapply(1:dim[1], function(i) {
