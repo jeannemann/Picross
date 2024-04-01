@@ -44,16 +44,12 @@ ui <- fluidPage(
     column(
       width = 9,
       fluidRow(
-        mainPanel(
-          uiOutput("indices"),
-          style = "margin-top: 20px;"  # Ajout d'une marge en haut pour les indices
-        )
+        uiOutput("indices"),
+        style = "margin-top: 20px;"
       ),
       fluidRow(
-        mainPanel(
-          uiOutput("grid"),
-          style = "margin-top: 20px;"  # Ajout d'une marge en haut pour la grille principale
-        )
+        uiOutput("grid"),
+        style = "margin-top: 20px;"
       )
     )
   )
@@ -85,12 +81,23 @@ server <- function(input, output, session) {
   })
   
   observe({
-    # Calculer les indices pour chaque colonne de la grille
+    # Calculer les indices pour chaque colonne et chaque ligne de la grille
     if (!is.null(grid())) {
+      rows <- nrow(grid())
       cols <- ncol(grid())
-      counts_list <- lapply(1:cols, function(j) {
+      
+      # Calculer les indices pour les colonnes
+      counts_cols <- lapply(1:cols, function(j) {
         consecutiveCounts(grid()[, j])
       })
+      
+      # Calculer les indices pour les lignes
+      counts_rows <- lapply(1:rows, function(i) {
+        consecutiveCounts(grid()[i, ])
+      })
+      
+      # Mettre à jour les réactifs
+      counts_list <- list(cols = counts_cols, rows = counts_rows)
       counts(counts_list)
     }
   })
@@ -98,21 +105,52 @@ server <- function(input, output, session) {
   # Afficher les indices
   output$indices <- renderUI({
     if (!is.null(counts())) {
-      cols <- length(counts())
+      cols <- length(counts()$cols)
+      rows <- length(counts()$rows)
+      
       div(
         style = paste0(
           "display: grid;",
-          "grid-template-columns: repeat(", cols, ", 30px);",  # Utiliser une largeur fixe en pixels pour chaque colonne d'indices
+          "grid-template-columns: repeat(", cols, ", 30px);",
           "grid-gap: 1px;"
         ),
         lapply(1:cols, function(j) {
-          lapply(counts()[[j]], function(count) {
+          div(
+            style = paste0(
+              "display: grid;",
+              "grid-template-rows: repeat(", length(counts()$cols[[j]]), ", 30px);",
+              "grid-gap: 1px;"
+            ),
+            lapply(counts()$cols[[j]], function(count) {
+              div(
+                count,
+                style = "text-align: center;"
+              )
+            })
+          )
+        }),
+        div(
+          style = paste0(
+            "display: grid;",
+            "grid-template-rows: repeat(", rows, ", 30px);",
+            "grid-gap: 1px;"
+          ),
+          lapply(1:rows, function(i) {
             div(
-              count,
-              style = "text-align: center;"
+              style = paste0(
+                "display: grid;",
+                "grid-template-columns: repeat(", length(counts()$rows[[i]]), ", 30px);",
+                "grid-gap: 1px;"
+              ),
+              lapply(counts()$rows[[i]], function(count) {
+                div(
+                  count,
+                  style = "text-align: center;"
+                )
+              })
             )
           })
-        })
+        )
       )
     }
   })
