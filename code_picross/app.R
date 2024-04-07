@@ -37,6 +37,7 @@ ui <- fluidPage(
                                 "15x20", 
                                 "20x20"),
                     selected = "10x10"),
+        actionButton("check_button", "Check"),
         style = "width: 200px;"
       )
     ),
@@ -186,6 +187,74 @@ server <- function(input, output, session) {
           })
         })
       )
+    }
+  })
+  
+  # Fonction de vérification
+  verification <- function() {
+    if (!is.null(grid()) && !is.null(counts())) {
+      rows <- nrow(grid())
+      cols <- ncol(grid())
+      
+      # Vérifier les colonnes
+      for (j in 1:cols) {
+        counts_col <- counts()$cols[[j]]
+        current_count <- 0
+        for (i in 1:rows) {
+          if (input[[paste0("cell_", i, "_", j)]]) {
+            current_count <- current_count + 1
+          } else {
+            if (current_count > 0) {
+              if (!current_count %in% counts_col) {
+                return(FALSE)
+              }
+              current_count <- 0
+            }
+          }
+        }
+        if (current_count > 0 && !current_count %in% counts_col) {
+          return(FALSE)
+        }
+      }
+      
+      # Vérifier les lignes
+      for (i in 1:rows) {
+        counts_row <- counts()$rows[[i]]
+        current_count <- 0
+        for (j in 1:cols) {
+          if (input[[paste0("cell_", i, "_", j)]]) {
+            current_count <- current_count + 1
+          } else {
+            if (current_count > 0) {
+              if (!current_count %in% counts_row) {
+                return(FALSE)
+              }
+              current_count <- 0
+            }
+          }
+        }
+        if (current_count > 0 && !current_count %in% counts_row) {
+          return(FALSE)
+        }
+      }
+      
+      return(TRUE)
+    }
+    return(FALSE)
+  }
+  
+  # Réaction au bouton de vérification
+  observeEvent(input$check_button, {
+    if (verification()) {
+      showModal(modalDialog(
+        title = "Félicitations!",
+        "Vous avez résolu le puzzle avec succès!"
+      ))
+    } else {
+      showModal(modalDialog(
+        title = "Désolé!",
+        "La solution que vous avez fournie est incorrecte. Veuillez réessayer."
+      ))
     }
   })
 }
