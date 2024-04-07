@@ -68,8 +68,8 @@ server <- function(input, output, session) {
   }
   
   # Function to generate random Picross grid
-  grille_aleatoire <- function(dim) {
-    grid <- matrix(0, nrow = dim[1], ncol = dim[2])
+  grille_aleatoire <- function(dim, density) {
+    grid <- matrix(sample(c(0, 1), dim[1] * dim[2], replace = TRUE, prob = c(1 - density, density)), nrow = dim[1], ncol = dim[2])
     return(grid)
   }
   
@@ -79,7 +79,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$grid_size, {
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
-    grid(grille_aleatoire(dim))
+    grid(grille_aleatoire(dim, 0.5))  # Changer la densité selon vos préférences
   })
   
   observe({
@@ -88,14 +88,14 @@ server <- function(input, output, session) {
       rows <- nrow(grid())
       cols <- ncol(grid())
       
-      # Calculer les indices pour les colonnes (aléatoirement pour l'instant)
+      # Calculer les indices pour les colonnes
       counts_cols <- lapply(1:cols, function(j) {
-        consecutiveCounts(sample(c(0, 1), rows, replace = TRUE))
+        consecutiveCounts(grid()[, j])
       })
       
-      # Calculer les indices pour les lignes (aléatoirement pour l'instant)
+      # Calculer les indices pour les lignes
       counts_rows <- lapply(1:rows, function(i) {
-        consecutiveCounts(sample(c(0, 1), cols, replace = TRUE))
+        consecutiveCounts(grid()[i, ])
       })
       
       # Mettre à jour les réactifs
@@ -165,16 +165,15 @@ server <- function(input, output, session) {
       div(
         style = paste0(
           "display: grid;",
-          "grid-template-columns: repeat(", dim[2], ", 30px);",  # Utiliser une largeur fixe en pixels pour chaque colonne de la grille
-          "grid-template-rows: repeat(", dim[1], ", 30px);",     # Utiliser une hauteur fixe en pixels pour chaque ligne de la grille
+          "grid-template-columns: repeat(", dim[2], ", 30px);",
+          "grid-template-rows: repeat(", dim[1], ", 30px);",
           "grid-gap: 1px;"
         ),
         lapply(1:dim[1], function(i) {
           lapply(1:dim[2], function(j) {
             id <- paste0("cell_", i, "_", j)
-            cell_value <- grid()[i, j]
-            style <- if (cell_value == 1) "background-color: darkblue;" else "background-color: white;"
-            actionButton(
+            style <- "background-color: white;"
+            button <- actionButton(
               id, 
               "", 
               style = paste0(
@@ -184,63 +183,42 @@ server <- function(input, output, session) {
               ),
               class = "grid-cell"
             )
+            if (grid()[i, j] == 1) {
+              button$children <- tags$style(".grid-cell { background-color: darkblue; }")
+            }
+            button
           })
         })
       )
     }
   })
   
-  # Fonction de vérification
   verification <- function() {
-    if (!is.null(grid()) && !is.null(counts())) {
-      rows <- nrow(grid())
-      cols <- ncol(grid())
+    if (!is.null(grid())) {
+      dim <- dim(grid())
       
-      # Vérifier les colonnes
-      for (j in 1:cols) {
-        counts_col <- counts()$cols[[j]]
-        current_count <- 0
-        for (i in 1:rows) {
-          if (input[[paste0("cell_", i, "_", j)]]) {
-            current_count <- current_count + 1
-          } else {
-            if (current_count > 0) {
-              if (!current_count %in% counts_col) {
-                return(FALSE)
-              }
-              current_count <- 0
-            }
-          }
-        }
-        if (current_count > 0 && !current_count %in% counts_col) {
+      # Vérifier les lignes
+      for (i in 1:dim[1]) {
+        row <- sapply(1:dim[2], function(j) {
+          class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue"
+        })
+        if (!identical(row, grid()[i, ])) {
           return(FALSE)
         }
       }
       
-      # Vérifier les lignes
-      for (i in 1:rows) {
-        counts_row <- counts()$rows[[i]]
-        current_count <- 0
-        for (j in 1:cols) {
-          if (input[[paste0("cell_", i, "_", j)]]) {
-            current_count <- current_count + 1
-          } else {
-            if (current_count > 0) {
-              if (!current_count %in% counts_row) {
-                return(FALSE)
-              }
-              current_count <- 0
-            }
-          }
-        }
-        if (current_count > 0 && !current_count %in% counts_row) {
+      # Vérifier les colonnes
+      for (j in 1:dim[2]) {
+        col <- sapply(1:dim[1], function(i) {
+          class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue"
+        })
+        if (!identical(col, grid()[, j])) {
           return(FALSE)
         }
       }
       
       return(TRUE)
     }
-    return(FALSE)
   }
   
   # Réaction au bouton de vérification
