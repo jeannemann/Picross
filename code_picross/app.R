@@ -18,7 +18,8 @@ ui <- fluidPage(
             cell.css("background-color", "darkblue");
           }
         });
-        '))),
+    '
+  ))),
   
   # Utilisation de fluidRow pour disposer les éléments côte à côte
   fluidRow(
@@ -67,7 +68,7 @@ server <- function(input, output, session) {
   
   # Function to generate random Picross grid
   grille_aleatoire <- function(dim) {
-    grid <- matrix(sample(c(0, 1), dim[1] * dim[2], replace = TRUE, prob = c(0.6, 0.4)), nrow = dim[1], ncol = dim[2])
+    grid <- matrix(0, nrow = dim[1], ncol = dim[2])
     return(grid)
   }
   
@@ -86,14 +87,14 @@ server <- function(input, output, session) {
       rows <- nrow(grid())
       cols <- ncol(grid())
       
-      # Calculer les indices pour les colonnes
+      # Calculer les indices pour les colonnes (aléatoirement pour l'instant)
       counts_cols <- lapply(1:cols, function(j) {
-        consecutiveCounts(grid()[, j])
+        consecutiveCounts(sample(c(0, 1), rows, replace = TRUE))
       })
       
-      # Calculer les indices pour les lignes
+      # Calculer les indices pour les lignes (aléatoirement pour l'instant)
       counts_rows <- lapply(1:rows, function(i) {
-        consecutiveCounts(grid()[i, ])
+        consecutiveCounts(sample(c(0, 1), cols, replace = TRUE))
       })
       
       # Mettre à jour les réactifs
