@@ -42,16 +42,30 @@ ui <- fluidPage(
       )
     ),
     
-    # Affichage des indices au-dessus de la grille
+    # Affichage des indices et de la grille
     column(
       width = 9,
       fluidRow(
-        uiOutput("indices"),
-        style = "margin-top: 20px;"
+        # Espace pour les indices des colonnes
+        column(
+          width = 12,
+          uiOutput("col_indices"),
+          style = "margin-top: 20px; text-align: center;"
+        )
       ),
       fluidRow(
-        uiOutput("grid"),
-        style = "margin-top: 20px;"
+        # Espace pour les indices des lignes
+        column(
+          width = 2,
+          uiOutput("row_indices"),
+          style = "margin-top: 20px;"
+        ),
+        # Grille
+        column(
+          width = 10,
+          uiOutput("grid"),
+          style = "margin-top: 20px;"
+        )
       )
     )
   )
@@ -104,11 +118,10 @@ server <- function(input, output, session) {
     }
   })
   
-  # Afficher les indices
-  output$indices <- renderUI({
+  # Afficher les indices des colonnes
+  output$col_indices <- renderUI({
     if (!is.null(counts())) {
       cols <- length(counts()$cols)
-      rows <- length(counts()$rows)
       
       div(
         style = paste0(
@@ -130,29 +143,37 @@ server <- function(input, output, session) {
               )
             })
           )
-        }),
-        div(
-          style = paste0(
-            "display: grid;",
-            "grid-template-rows: repeat(", rows, ", 30px);",
-            "grid-gap: 1px;"
-          ),
-          lapply(1:rows, function(i) {
-            div(
-              style = paste0(
-                "display: grid;",
-                "grid-template-columns: repeat(", length(counts()$rows[[i]]), ", 30px);",
-                "grid-gap: 1px;"
-              ),
-              lapply(counts()$rows[[i]], function(count) {
-                div(
-                  count,
-                  style = "text-align: center;"
-                )
-              })
-            )
-          })
-        )
+        })
+      )
+    }
+  })
+  
+  # Afficher les indices des lignes
+  output$row_indices <- renderUI({
+    if (!is.null(counts())) {
+      rows <- length(counts()$rows)
+      
+      div(
+        style = paste0(
+          "display: grid;",
+          "grid-template-rows: repeat(", rows, ", 30px);",
+          "grid-gap: 1px;"
+        ),
+        lapply(1:rows, function(i) {
+          div(
+            style = paste0(
+              "display: grid;",
+              "grid-template-columns: repeat(", length(counts()$rows[[i]]), ", 30px);",
+              "grid-gap: 1px;"
+            ),
+            lapply(counts()$rows[[i]], function(count) {
+              div(
+                count,
+                style = "text-align: center;"
+              )
+            })
+          )
+        })
       )
     }
   })
