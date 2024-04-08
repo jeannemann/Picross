@@ -27,8 +27,9 @@ ui <- fluidPage(
     column(
       width = 12,
       h3("Règles du Picross"),
-      p("Le Picross est un jeu de puzzle où vous devez remplir certaines cases d'une grille selon les indices fournis. Les nombres sur les bords de la grille indiquent le nombre de cases noires consécutives dans la ligne ou la colonne correspondante."),
+      p("Le Picross est un jeu de puzzle où vous devez remplir certaines cases d'une grille selon les indices fournis. Les nombres sur les bords de la grille indiquent le nombre de cases bleu marine consécutives dans la ligne ou la colonne correspondante."),
       p("Utilisez les indices pour déterminer quelles cases doivent être remplies de couleur. Pour remplir une case, cliquez simplement dessus. Pour la vider, cliquez à nouveau."),
+      p("Quand vous pensez avoir réussi cliquez sur le bouton 'Check' pour vérifier votre solution. Bonne chance !"),
       style = "margin-top: 20px;"
     ),
     
