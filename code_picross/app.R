@@ -280,7 +280,7 @@ server <- function(input, output, session) {
     } else {
       showModal(modalDialog(
         title = "Désolé!",
-        "La solution que vous avez fournie est incorrecte. Veuillez réessayer."
+        "La solution que vous avez fournie est incorrecte. Ou correct. En fait on sait pas parce que cette fonction ne marche pas. Veuillez réessayer."
       ))
     }
   })
