@@ -37,6 +37,10 @@ ui <- fluidPage(
                                 "15x20", 
                                 "20x20"),
                     selected = "10x10"),
+        selectInput("difficulty",
+                    "Difficulté:",
+                    choices = c("Easy", "Medium", "Hard"),
+                    selected = "Medium"),
         actionButton("check_button", "Check"),
         style = "width: 200px;"
       )
@@ -80,7 +84,16 @@ server <- function(input, output, session) {
     counts <- runs$lengths[runs$values == TRUE]
     return(counts)
   }
-  
+  # Fonction pour définir la difficulté
+  set_difficulty <- function(difficulty) {
+    if (input$difficulty == "Easy") {
+      return(0.9)
+    } else if (difficulty == "Medium") {
+      return(0.7)
+    } else if (difficulty == "Hard") {
+      return(0.5)
+    }
+  }
   # Function to generate random Picross grid
   grille_aleatoire <- function(dim, density) {
     grid <- matrix(sample(c(0, 1), dim[1] * dim[2], replace = TRUE, prob = c(1 - density, density)), nrow = dim[1], ncol = dim[2])
@@ -93,7 +106,7 @@ server <- function(input, output, session) {
   
   observeEvent(input$grid_size, {
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
-    grid(grille_aleatoire(dim, 0.5))  # Changer la densité selon vos préférences
+    grid(grille_aleatoire(dim, set_difficulty(difficulty=input$difficulty)))  # Changer la densité selon vos préférences
   })
   
   observe({
