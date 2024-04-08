@@ -46,13 +46,14 @@ ui <- fluidPage(
       )
     ),
     
-    # Affichage des indices et de la grille
+    # Affichage de la matrice et des indices
     column(
       width = 9,
       fluidRow(
         # Espace pour les indices des colonnes
         column(
-          width = 12,
+          width = 3, # Ajout de la taille des colonnes d'indices supplémentaires
+          offset = 1, # Ajout d'une marge à gauche pour les aligner
           uiOutput("col_indices"),
           style = "margin-top: 20px; text-align: center;"
         )
@@ -139,23 +140,27 @@ server <- function(input, output, session) {
       div(
         style = paste0(
           "display: grid;",
-          "grid-template-columns: repeat(", cols, ", 30px);",
+          "grid-template-columns: repeat(", cols + 1, ", 30px);", # Ajout d'un pour l'espace supplémentaire
           "grid-gap: 1px;"
         ),
-        lapply(1:cols, function(j) {
-          div(
-            style = paste0(
-              "display: grid;",
-              "grid-template-rows: repeat(", length(counts()$cols[[j]]), ", 30px);",
-              "grid-gap: 1px;"
-            ),
-            lapply(counts()$cols[[j]], function(count) {
-              div(
-                count,
-                style = "text-align: center;"
-              )
-            })
-          )
+        lapply(1:(cols + 1), function(j) { # Ajout d'un élément dans la boucle
+          if (j == 1) {
+            div() # Ajout d'une chaine vide pour le premier élément
+          } else {
+            div(
+              style = paste0(
+                "display: grid;",
+                "grid-template-rows: repeat(", length(counts()$cols[[j - 1]]), ", 30px);",
+                "grid-gap: 1px;"
+              ),
+              lapply(counts()$cols[[j - 1]], function(count) {
+                div(
+                  count,
+                  style = "text-align: center;"
+                )
+              })
+            )
+          }
         })
       )
     }
