@@ -1,5 +1,6 @@
 # Picross
-Ce projet consiste en la création d'un jeu de Picross interactif utilisant le framework Shiny de R. Le Picross, également connu sous le nom de Nonogram, est un jeu de puzzle où le joueur doit colorier certaines cases d'une grille selon les indices fournis sur les bords de la grille. Les indices indiquent le nombre de cases à colorier dans chaque ligne et colonne. Le but du jeu est de colorier les bonnes cases pour révéler un dessin caché.
+Ce projet consiste en la création d'un jeu de Picross interactif utilisant le framework Shiny de R. Le code sera mis sous forme de package R. 
+Le Picross, également connu sous le nom de Nonogram, est un jeu de puzzle où le joueur doit colorier certaines cases d'une grille selon les indices fournis sur les bords de la grille. Les indices indiquent le nombre de cases à colorier dans chaque ligne et colonne. Le but du jeu est de colorier les bonnes cases pour révéler un dessin caché.
 
 ## Fonctionnalités
 - [x] Sélection de la taille de la grille : Permet au joueur de choisir parmi différentes tailles de grille pour jouer.
