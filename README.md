@@ -5,8 +5,8 @@ Ce projet consiste en la création d'un jeu de Picross interactif utilisant le f
 - [x] Sélection de la taille de la grille : Permet au joueur de choisir parmi différentes tailles de grille pour jouer.
 - [x] Choix de la difficulté : Le joueur peut sélectionner la difficulté du puzzle parmi plusieurs niveaux.
 - [x] Affichage des règles du Picross : Explique les règles du jeu pour guider les joueurs.
-- [x] Grille interactive : Le joueur peut remplir les cases de la grille en cliquant dessus pour résoudre le puzzle.
-- [x] Vérification de la solution : Un bouton "Vérifier" permet au joueur de vérifier si sa solution est correcte.
+- [x] Grille interactive : Le joueur peut remplir les cases de la grille en cliquant dessus pour résoudre le puzzle. Puis les effacer en recliquant dessus.
+- [x] Vérification de la solution : Un bouton "Check" permet au joueur de vérifier si sa solution est correcte.
 
 ## Contributeurs
 - Mario LAPI
