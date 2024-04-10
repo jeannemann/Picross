@@ -1,10 +1,9 @@
-library(shiny)
 
 ui <- fluidPage(
-  
+
   # Titre de l'application
   titlePanel("Grille de PICROSS"),
-  
+
   # Use fixed layout
   tags$head(tags$script(HTML(
     '
@@ -20,7 +19,7 @@ ui <- fluidPage(
         });
     '
   ))),
-  
+
   # Utilisation de fluidRow pour disposer les éléments côte à côte
   fluidRow(
     # Règles du Picross
@@ -32,19 +31,19 @@ ui <- fluidPage(
       p("Quand vous pensez avoir réussi cliquez sur le bouton 'Check' pour vérifier votre solution. Bonne chance !"),
       style = "margin-top: 20px;"
     ),
-    
+
     # Panneau latéral avec une entrée de sélection pour la taille de la grille
     column(
       width = 3,
       sidebarPanel(
         selectInput("grid_size",
                     "Grid Size:",
-                    choices = c("5x5", 
-                                "5x10", 
-                                "10x10", 
-                                "10x15", 
-                                "15x15", 
-                                "15x20", 
+                    choices = c("5x5",
+                                "5x10",
+                                "10x10",
+                                "10x15",
+                                "15x15",
+                                "15x20",
                                 "20x20"),
                     selected = "10x10"),
         selectInput("difficulty",
@@ -55,7 +54,7 @@ ui <- fluidPage(
         style = "width: 200px;"
       )
     ),
-    
+
     # Affichage de la matrice et des indices
     column(
       width = 9,
@@ -88,7 +87,7 @@ ui <- fluidPage(
 
 # Define server logic to generate grid
 server <- function(input, output, session) {
-  
+
   # Function to count black squares in Picross
   consecutiveCounts <- function(vector) {
     runs <- rle(vector == 1)
@@ -110,43 +109,43 @@ server <- function(input, output, session) {
     grid <- matrix(sample(c(0, 1), dim[1] * dim[2], replace = TRUE, prob = c(1 - density, density)), nrow = dim[1], ncol = dim[2])
     return(grid)
   }
-  
+
   # Create grid
   grid <- reactiveVal(NULL)
   counts <- reactiveVal(NULL)  # Stocker les indices pour chaque colonne
-  
+
   observeEvent(input$grid_size, {
     dim <- as.numeric(unlist(strsplit(input$grid_size, "x")))
     grid(grille_aleatoire(dim, set_difficulty(difficulty=input$difficulty)))  # Changer la densité selon vos préférences
   })
-  
+
   observe({
     # Calculer les indices pour chaque colonne et chaque ligne de la grille
     if (!is.null(grid())) {
       rows <- nrow(grid())
       cols <- ncol(grid())
-      
+
       # Calculer les indices pour les colonnes
       counts_cols <- lapply(1:cols, function(j) {
         consecutiveCounts(grid()[, j])
       })
-      
+
       # Calculer les indices pour les lignes
       counts_rows <- lapply(1:rows, function(i) {
         consecutiveCounts(grid()[i, ])
       })
-      
+
       # Mettre à jour les réactifs
       counts_list <- list(cols = counts_cols, rows = counts_rows)
       counts(counts_list)
     }
   })
-  
+
   # Afficher les indices des colonnes
   output$col_indices <- renderUI({
     if (!is.null(counts())) {
       cols <- length(counts()$cols)
-      
+
       div(
         style = paste0(
           "display: grid;",
@@ -175,12 +174,12 @@ server <- function(input, output, session) {
       )
     }
   })
-  
+
   # Afficher les indices des lignes
   output$row_indices <- renderUI({
     if (!is.null(counts())) {
       rows <- length(counts()$rows)
-      
+
       div(
         style = paste0(
           "display: grid;",
@@ -205,12 +204,12 @@ server <- function(input, output, session) {
       )
     }
   })
-  
+
   # Afficher la grille
   output$grid <- renderUI({
     if (!is.null(grid())) {
       dim <- dim(grid())
-      
+
       div(
         style = paste0(
           "display: grid;",
@@ -223,8 +222,8 @@ server <- function(input, output, session) {
             id <- paste0("cell_", i, "_", j)
             style <- "background-color: white;"
             button <- actionButton(
-              id, 
-              "", 
+              id,
+              "",
               style = paste0(
                 "width: 100%;",
                 "height: 100%;",
@@ -241,35 +240,37 @@ server <- function(input, output, session) {
       )
     }
   })
-  
+
   verification <- function() {
     if (!is.null(grid())) {
       dim <- dim(grid())
-      
+      user_grid <- matrix(0, nrow = dim[1], ncol = dim[2])
+
+      # Remplir la grille de l'utilisateur
+      for (i in 1:dim[1]) {
+        for (j in 1:dim[2]) {
+          user_grid[i, j] <- ifelse(class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue", 1, 0)
+        }
+      }
+
       # Vérifier les lignes
       for (i in 1:dim[1]) {
-        row <- sapply(1:dim[2], function(j) {
-          class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue"
-        })
-        if (!identical(row, grid()[i, ])) {
+        if (!identical(user_grid[i, ], grid()[i, ])) {
           return(FALSE)
         }
       }
-      
+
       # Vérifier les colonnes
       for (j in 1:dim[2]) {
-        col <- sapply(1:dim[1], function(i) {
-          class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue"
-        })
-        if (!identical(col, grid()[, j])) {
+        if (!identical(user_grid[, j], grid()[, j])) {
           return(FALSE)
         }
       }
-      
+
       return(TRUE)
     }
   }
-  
+
   # Réaction au bouton de vérification
   observeEvent(input$check_button, {
     if (verification()) {
@@ -286,5 +287,13 @@ server <- function(input, output, session) {
   })
 }
 
-# Run the application 
-shinyApp(ui, server)
+#' @title Jouer
+#' @description Fonction pour lancer l'application blablabla
+#' @author Lapi - Mannequin
+#' @import shiny
+#' @export
+
+play_MJ <- function() {
+  # Run the application
+  shinyApp(ui, server)
+}
