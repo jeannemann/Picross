@@ -2,10 +2,9 @@ Package: Picross
 Type: Package
 Title: What the Package Does (Title Case)
 Version: 0.1.0
-Author: Who wrote it
+Author: Mario LAPI et Jeanne MANNEQUIN
 Maintainer: The package maintainer
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Jeu de Picross interactif en shiny. Cliquer sur une case pour changer sa couleur et remplir la grille selon les indices des lignes et colonnes. Possibilité de changer la taille de la grille et le niveau de difficulté. Cliquer sur le bouton "check" en fin de partie pour vérifier la réponse.
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
