@@ -61,7 +61,7 @@ ui <- fluidPage(
       fluidRow(
         # Espace pour les indices des colonnes
         column(
-          width = 3, # Ajout de la taille des colonnes d'indices supplémentaires
+          width = 5, # Ajout de la taille des colonnes d'indices supplémentaires
           offset = 1, # Ajout d'une marge à gauche pour les aligner
           uiOutput("col_indices"),
           style = "margin-top: 20px; text-align: center;"
@@ -244,12 +244,22 @@ server <- function(input, output, session) {
   verification <- function() {
     if (!is.null(grid())) {
       dim <- dim(grid())
-      user_grid <- matrix(0, nrow = dim[1], ncol = dim[2])
+
+      # Vérifier si les dimensions de la grille correspondent aux données d'entrée
+      if (dim[1] != input$grid_size[1] || dim[2] != input$grid_size[2]) {
+        return(FALSE)
+      }
+
+      user_grid <- matrix(NA, nrow = dim[1], ncol = dim[2])
 
       # Remplir la grille de l'utilisateur
       for (i in 1:dim[1]) {
         for (j in 1:dim[2]) {
-          user_grid[i, j] <- ifelse(class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue", 1, 0)
+          if (!is.null(input[[paste0("cell_", i, "_", j)]])) {
+            user_grid[i, j] <- ifelse(class(input[[paste0("cell_", i, "_", j)]]) %in% "action-button-darkblue", 1, 0)
+          } else {
+            return(FALSE)  # Si une cellule est NULL, renvoyer FALSE
+          }
         }
       }
 
@@ -271,6 +281,7 @@ server <- function(input, output, session) {
     }
   }
 
+
   # Réaction au bouton de vérification
   observeEvent(input$check_button, {
     if (verification()) {
@@ -281,14 +292,14 @@ server <- function(input, output, session) {
     } else {
       showModal(modalDialog(
         title = "Désolé!",
-        "La solution que vous avez fournie est incorrecte. Ou correct. En fait on sait pas parce que cette fonction ne marche pas. Veuillez réessayer."
+        "La solution que vous avez fournie est incorrecte. Ou correct. En fait on sait pas parce que cette fonction ne marche pas vraiment, désolé."
       ))
     }
   })
 }
-
+shinyApp(ui, server)
 #' @title Jouer
-#' @description Fonction pour lancer l'application blablabla ecrire ce que ca fait
+#' @description Fonction pour lancer l'application et ecrire ce que ca fait
 #' @author Lapi - Mannequin
 #' @import shiny
 #' @export
