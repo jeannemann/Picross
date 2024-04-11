@@ -9,6 +9,14 @@ Le Picross, également connu sous le nom de Nonogram, est un jeu de puzzle où l
 - [x] Grille interactive : Le joueur peut remplir les cases de la grille en cliquant dessus pour résoudre le puzzle. Puis les effacer en recliquant dessus.
 - [x] Vérification de la solution : Un bouton "Check" permet au joueur de vérifier si sa solution est correcte.
 
+## Installation
+Pour installer le package Picross, exécutez les commandes suivantes dans R :
+```R
+install.packages("devtools")
+devtools::install_github("jeannemann/Picross")
+Picross::play_MJ()
+```
+
 ## Contributeurs
 - Mario LAPI
 - Jeanne MANNEQUIN

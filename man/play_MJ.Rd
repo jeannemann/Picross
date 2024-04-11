@@ -7,7 +7,7 @@
 play_MJ()
 }
 \description{
-Fonction pour lancer l'application blablabla
+Fonction pour lancer l'application blablabla ecrire ce que ca fait
 }
 \author{
 Lapi - Mannequin

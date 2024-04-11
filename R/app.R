@@ -288,7 +288,7 @@ server <- function(input, output, session) {
 }
 
 #' @title Jouer
-#' @description Fonction pour lancer l'application blablabla
+#' @description Fonction pour lancer l'application blablabla ecrire ce que ca fait
 #' @author Lapi - Mannequin
 #' @import shiny
 #' @export
