@@ -297,7 +297,7 @@ server <- function(input, output, session) {
     }
   })
 }
-shinyApp(ui, server)
+
 #' @title Jouer
 #' @description Fonction pour lancer l'application et ecrire ce que ca fait
 #' @author Lapi - Mannequin
